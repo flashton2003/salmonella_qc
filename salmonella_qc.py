@@ -26,18 +26,21 @@ def read_assembly_stats(assembly_stats_inhandle):
     assembly_stats_results = assembly_stats_results.set_index('sample_name')
     return assembly_stats_results
 
-def make_master_df(contam_samples, sistr_samples, assembly_stats_samples):
-    # all_sample_names = list(set(contam_samples).union(set(sistr_samples), set(assembly_stats_samples)))
-    # print(len(all_samples))
-    # print(all_samples)
-    ## not sure how genome snuck in there, from sistr results probably
-    if 'genome' in all_sample_names:
-        all_sample_names.remove('genome')
-    all_samples = pd.DataFrame({'samples':all_sample_names})
-    # print(all_samples)
+def take_index_union(contam, sistr_results, assembly_stats_results):
+    sample_union = pd.Index.union(contam.index, sistr_results.index)
+    sample_union = sample_union.union(assembly_stats_results.index)
+    all_samples = pd.DataFrame({'samples':list(sample_union)})
+    all_samples = all_samples.set_index('samples')
     return all_samples
 
-def main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle):
+def combine(all_samples, contam, sistr_results, assembly_stats_results, merged_outhandle):
+    merge = pd.merge(all_samples, contam, how = 'outer', left_index = True, right_index = True)
+    merge = pd.merge(merge, sistr_results, how = 'outer', left_index = True, right_index = True)
+    merge = pd.merge(merge, assembly_stats_results, how = 'outer', left_index = True, right_index = True)
+    # print(merge)
+    merge.to_csv(merged_outhandle, sep = '\t')
+
+def main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle, merged_outhandle):
     '''
     1. read in
         a. sistr results
@@ -50,16 +53,15 @@ def main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle):
     contam = run_interpret_kraken2_output(kraken_inhandle)
     sistr_results = read_sistr(sistr_inhandle)
     assembly_stats_results = read_assembly_stats(assembly_stats_inhandle)
-    # print(contam[[0]])
-    # all_samples = make_master_df(list(contam.index), sistr_results[['genome']], assembly_stats_results['sample_name'])
-    # print(contam)
-
-
+    all_samples = take_index_union(contam, sistr_results, assembly_stats_results)
+    combine(all_samples, contam, sistr_results, assembly_stats_results, merged_outhandle)
+    
 
 root_dir = '/Users/flashton/Dropbox/GordonGroup/ben_kumwenda_genomes'
 kraken_inhandle = f'{root_dir}/kraken2/results/2020.09.30/2020.10.01.parsed_results.v2.txt'
 sistr_inhandle = f'{root_dir}/sistr/results/2020.09.25/2020.09.25.ben_k_sistr_results.tsv'
 assembly_stats_inhandle = f'{root_dir}/qc/results/2020.09.28/2020.09.28.assembly_stats.ben_k.tsv'
+merged_outhandle = f'{root_dir}/qc/results/2020.10.02/2020.10.02.ben_k_merged_qc.tsv'
 
 if __name__ == '__main__':
-    main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle)
+    main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle, merged_outhandle)
