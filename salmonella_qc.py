@@ -14,6 +14,7 @@ def read_sistr(sistr_inhandle):
     sistr_results = pd.read_csv(sistr_inhandle, sep = '\t')
     sistr_results = sistr_results[['genome', 'qc_messages', 'qc_status', 'serovar', 'serovar_antigen', 'serovar_cgmlst']]
     # print(sistr_results[['genome']])
+    sistr_results = sistr_results.set_index('genome')
     return sistr_results
 
 def read_assembly_stats(assembly_stats_inhandle):
@@ -22,10 +23,11 @@ def read_assembly_stats(assembly_stats_inhandle):
     assembly_stats_results = assembly_stats_results.loc[assembly_stats_results['filename'] != 'filename']
     assembly_stats_results = assembly_stats_results.assign(sample_name = [x.split('/')[-1].rstrip('_contigs.fa') for x in assembly_stats_results['filename']])
     assembly_stats_results = assembly_stats_results[['sample_name', 'total_length', 'number', 'N50']]
+    assembly_stats_results = assembly_stats_results.set_index('sample_name')
     return assembly_stats_results
 
 def make_master_df(contam_samples, sistr_samples, assembly_stats_samples):
-    all_sample_names = list(set(contam_samples).union(set(sistr_samples), set(assembly_stats_samples)))
+    # all_sample_names = list(set(contam_samples).union(set(sistr_samples), set(assembly_stats_samples)))
     # print(len(all_samples))
     # print(all_samples)
     ## not sure how genome snuck in there, from sistr results probably
@@ -49,9 +51,9 @@ def main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle):
     sistr_results = read_sistr(sistr_inhandle)
     assembly_stats_results = read_assembly_stats(assembly_stats_inhandle)
     # print(contam[[0]])
-    all_samples = make_master_df(list(contam.index), sistr_results[['genome']], assembly_stats_results['sample_name'])
+    # all_samples = make_master_df(list(contam.index), sistr_results[['genome']], assembly_stats_results['sample_name'])
     # print(contam)
-    
+
 
 
 root_dir = '/Users/flashton/Dropbox/GordonGroup/ben_kumwenda_genomes'
