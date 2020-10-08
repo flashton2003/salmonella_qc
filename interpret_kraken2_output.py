@@ -51,7 +51,7 @@ def main(kraken_inhandle):
         # print(contam)
 
 root_dir = '/Users/flashton/Dropbox/GordonGroup/ben_kumwenda_genomes'
-kraken_inhandle = f'{root_dir}/kraken2/results/2020.09.30/2020.10.01.parsed_results.v2.txt'
+kraken_inhandle = f'{root_dir}/kraken2/results/2020.10.08/2020.10.08.parsed_results_Feasy_Ent.txt'
 
 if __name__ == '__main__':
     main(kraken_inhandle)

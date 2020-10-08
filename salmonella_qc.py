@@ -12,7 +12,10 @@ def run_interpret_kraken2_output(kraken_inhandle):
 def read_sistr(sistr_inhandle):
     # with open(sistr_inhandle) as fi:
     sistr_results = pd.read_csv(sistr_inhandle, sep = '\t')
+    # print(sistr_results)
+    sistr_results = sistr_results.loc[sistr_results['cgmlst_ST'] != 'cgmlst_ST']
     sistr_results = sistr_results[['genome', 'qc_messages', 'qc_status', 'serovar', 'serovar_antigen', 'serovar_cgmlst']]
+    sistr_results = sistr_results.assign(genome = [x.strip('_contigs.fa') for x in sistr_results['genome']])
     # print(sistr_results[['genome']])
     sistr_results = sistr_results.set_index('genome')
     return sistr_results
@@ -58,10 +61,16 @@ def main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle, merged_outhan
     
 
 root_dir = '/Users/flashton/Dropbox/GordonGroup/ben_kumwenda_genomes'
-kraken_inhandle = f'{root_dir}/kraken2/results/2020.09.30/2020.10.01.parsed_results.v2.txt'
-sistr_inhandle = f'{root_dir}/sistr/results/2020.09.25/2020.09.25.ben_k_sistr_results.tsv'
-assembly_stats_inhandle = f'{root_dir}/qc/results/2020.09.28/2020.09.28.assembly_stats.ben_k.tsv'
-merged_outhandle = f'{root_dir}/qc/results/2020.10.02/2020.10.02.ben_k_merged_qc.tsv'
+# kraken_inhandle = f'{root_dir}/kraken2/results/2020.09.30/2020.10.01.parsed_results.v2.txt'
+# sistr_inhandle = f'{root_dir}/sistr/results/2020.09.25/2020.09.25.ben_k_sistr_results.tsv'
+# assembly_stats_inhandle = f'{root_dir}/qc/results/2020.09.28/2020.09.28.assembly_stats.ben_k.tsv'
+# merged_outhandle = f'{root_dir}/qc/results/2020.10.02/2020.10.02.ben_k_merged_qc.tsv'
+kraken_inhandle = f'{root_dir}/kraken2/results/2020.10.08/2020.10.08.parsed_results_Feasy_Ent.txt'
+sistr_inhandle = f'{root_dir}/sistr/results/2020.10.08/2020.10.08.feasey_ent_sistr_res.tsv'
+assembly_stats_inhandle = f'{root_dir}/qc/results/2020.10.08/2020.10.08.assembly_stats_feasey_ent.tsv'
+merged_outhandle = f'{root_dir}/qc/results/2020.10.08/2020.10.02.feasey_ent_merged_qc.tsv'
+
+
 
 if __name__ == '__main__':
     main(kraken_inhandle, sistr_inhandle, assembly_stats_inhandle, merged_outhandle)
